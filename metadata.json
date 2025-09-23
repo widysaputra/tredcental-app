@@ -1,0 +1,5 @@
+{
+  "name": "Tredcental - Camping Rental Billing",
+  "description": "A web application to easily calculate the billing for renting camping equipment from Tredcental. Users can select items, specify the rental duration, and see a real-time summary of the total cost.",
+  "requestFramePermissions": []
+}
