@@ -47,6 +47,7 @@ const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
   const ReceiptContent = () => (
     <div className="bg-white text-black font-mono text-xs p-2">
       <header className="text-center mb-4">
+        <img src="/tred-logo.jpg" alt="Logo" className="w-16 h-auto mx-auto mb-2" />
         <h1 className="text-lg font-semibold uppercase">Tredcental</h1>
         <p>Rental Alat Camping</p>
         <p>Jl. Petualang No. 1, Jakarta</p>
