@@ -7,20 +7,32 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         theme: {
           extend: {
             fontFamily: {
               sans: ['Poppins', 'sans-serif'],
+              mono: ['IBM Plex Mono', 'monospace'],
             },
           },
         },
       }
     </script>
     <style>
+      @page {
+        size: 80mm auto; /* Standard thermal printer width */
+        margin: 4mm;
+      }
+      
       @media print {
+        body {
+          margin: 0;
+          padding: 0;
+          background-color: #fff;
+        }
+
         /* Hide main app, backdrop, and other no-print elements */
         body > #root, .no-print, .modal-backdrop {
           display: none !important;
@@ -30,8 +42,10 @@
         .print-modal-wrapper {
           position: static !important;
           padding: 0 !important;
+          margin: 0 !important;
           overflow: visible !important;
           display: block !important;
+          width: 100% !important;
         }
 
         /* Ensure the modal content itself fills the page */
@@ -39,20 +53,22 @@
           box-shadow: none !important;
           border-radius: 0 !important;
           max-width: 100% !important;
-          width: 100% !important;
+          width: 72mm !important; /* Slightly less than page size for margin */
+          padding: 0 !important;
           border: none !important;
+          color: #000;
         }
       }
     </style>
   <script type="importmap">
 {
   "imports": {
-    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.0.3",
-    "react/": "https://aistudiocdn.com/react@^19.1.1/",
     "react": "https://aistudiocdn.com/react@^19.1.1",
-    "react-dom": "https://aistudiocdn.com/react-dom@^19.1.1",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
-    "vite": "https://aistudiocdn.com/vite@^7.1.7"
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.1.1",
+    "vite": "https://aistudiocdn.com/vite@^7.1.7",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.0.3"
   }
 }
 </script>

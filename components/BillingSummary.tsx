@@ -88,7 +88,8 @@ const BillingSummary: React.FC<BillingSummaryProps> = ({
           <div className="mt-6 no-print">
             <button 
               onClick={onPrint}
-              className="w-full bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center space-x-2"
+              disabled={rentedItems.length === 0}
+              className="w-full bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center space-x-2 disabled:bg-slate-400 disabled:cursor-not-allowed"
             >
               <QrisIcon className="h-5 w-5" />
               <span>Buat Tagihan & QRIS</span>
