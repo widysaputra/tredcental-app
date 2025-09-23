@@ -1,6 +1,6 @@
 import React from 'react';
 import { RentedItem } from '../types';
-import { MinusIcon, PlusIcon, TrashIcon, CalendarIcon, EmptyCartIcon, PrintIcon } from './Icons';
+import { MinusIcon, PlusIcon, TrashIcon, CalendarIcon, EmptyCartIcon, QrisIcon } from './Icons';
 
 interface BillingSummaryProps {
   rentedItems: RentedItem[];
@@ -19,7 +19,7 @@ const BillingSummary: React.FC<BillingSummaryProps> = ({
   onUpdateQuantity,
   onRemoveItem,
   onSetRentalDays,
-  onPrint
+  onPrint,
 }) => {
     
   const formatCurrency = (amount: number) => {
@@ -85,13 +85,15 @@ const BillingSummary: React.FC<BillingSummaryProps> = ({
             <span className="font-bold text-slate-800">Total</span>
             <span className="font-extrabold text-emerald-600">{formatCurrency(totalCost)}</span>
           </div>
-          <button 
-            onClick={onPrint}
-            className="mt-6 w-full bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center space-x-2 no-print"
-          >
-            <PrintIcon className="h-5 w-5" />
-            <span>Cetak Struk</span>
-          </button>
+          <div className="mt-6 no-print">
+            <button 
+              onClick={onPrint}
+              className="w-full bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center space-x-2"
+            >
+              <QrisIcon className="h-5 w-5" />
+              <span>Buat Tagihan & QRIS</span>
+            </button>
+          </div>
         </div>
       )}
     </div>

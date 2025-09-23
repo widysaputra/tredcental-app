@@ -6,10 +6,14 @@ import BillingSummary from './components/BillingSummary';
 import AddItemForm from './components/AddItemForm';
 import PrintPreviewModal from './components/PrintPreviewModal';
 
+export type QrStatus = 'idle' | 'loading' | 'error';
+
 const App: React.FC = () => {
   const [rentedItems, setRentedItems] = useState<RentedItem[]>([]);
   const [rentalDays, setRentalDays] = useState<number>(1);
   const [isPreviewing, setIsPreviewing] = useState(false);
+  const [qrisCodeUrl, setQrisCodeUrl] = useState<string | null>(null);
+  const [qrStatus, setQrStatus] = useState<QrStatus>('idle');
 
   const handleAddItem = (gearToAdd: Gear) => {
     setRentedItems(prevItems => {
@@ -38,24 +42,40 @@ const App: React.FC = () => {
   const handleRemoveItem = (itemId: number) => {
     setRentedItems(prevItems => prevItems.filter(item => item.id !== itemId));
   };
-  
-  const handleOpenPreview = () => {
-    setIsPreviewing(true);
-  };
-  
-  const handleClosePreview = () => {
-    setIsPreviewing(false);
-  };
 
   const totalCost = useMemo(() => {
     const days = Math.max(1, rentalDays);
     return rentedItems.reduce((total, item) => total + item.pricePerDay * item.quantity * days, 0);
   }, [rentedItems, rentalDays]);
   
+  const handleOpenPreview = async () => {
+    setIsPreviewing(true);
+    setQrStatus('loading');
+    setQrisCodeUrl(null);
+
+    // --- Simulasi Panggilan ke Backend Anda ---
+    // Di dunia nyata, ini akan menjadi panggilan API ke server Anda
+    // untuk menghasilkan kode QRIS berdasarkan totalCost
+    setTimeout(() => {
+      if (totalCost > 0) {
+        const fakeQrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=Pay-Tredcental-IDR-${totalCost}`;
+        setQrisCodeUrl(fakeQrImageUrl);
+        setQrStatus('idle');
+      } else {
+        setQrStatus('error');
+      }
+    }, 1500); // Simulasi jeda jaringan 1.5 detik
+  };
+  
+  const handleClosePreview = () => {
+    setIsPreviewing(false);
+    setQrisCodeUrl(null);
+    setQrStatus('idle');
+  };
+
   const availableGearOptions = useMemo(() => {
-    const rentedIds = new Set(rentedItems.map(item => item.id));
     return AVAILABLE_GEAR;
-  }, [rentedItems]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans">
@@ -85,6 +105,8 @@ const App: React.FC = () => {
           rentalDays={rentalDays}
           totalCost={totalCost}
           onClose={handleClosePreview}
+          qrisCodeUrl={qrisCodeUrl}
+          qrStatus={qrStatus}
         />
       )}
     </div>
