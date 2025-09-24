@@ -8,8 +8,13 @@ import PrintPreviewModal from './components/PrintPreviewModal';
 
 const App: React.FC = () => {
   const [rentedItems, setRentedItems] = useState<RentedItem[]>([]);
-  const [rentalDays, setRentalDays] = useState<number>(1);
   const [isPreviewing, setIsPreviewing] = useState(false);
+
+  // New state for detailed receipt
+  const [customerName, setCustomerName] = useState('');
+  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [endDate, setEndDate] = useState(new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]);
+  const [discount, setDiscount] = useState(0); // Percentage
 
   const handleAddItem = (gearToAdd: Gear) => {
     setRentedItems(prevItems => {
@@ -39,10 +44,26 @@ const App: React.FC = () => {
     setRentedItems(prevItems => prevItems.filter(item => item.id !== itemId));
   };
 
-  const totalCost = useMemo(() => {
-    const days = Math.max(1, rentalDays);
-    return rentedItems.reduce((total, item) => total + item.pricePerDay * item.quantity * days, 0);
+  const rentalDays = useMemo(() => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) return 1;
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 1;
+  }, [startDate, endDate]);
+
+  const subtotal = useMemo(() => {
+    return rentedItems.reduce((total, item) => total + item.pricePerDay * item.quantity * rentalDays, 0);
   }, [rentedItems, rentalDays]);
+
+  const discountAmount = useMemo(() => {
+    return subtotal * (discount / 100);
+  }, [subtotal, discount]);
+
+  const totalCost = useMemo(() => {
+    return subtotal - discountAmount;
+  }, [subtotal, discountAmount]);
   
   const handleOpenPreview = () => {
     if (rentedItems.length > 0) {
@@ -70,12 +91,21 @@ const App: React.FC = () => {
           <div className="mt-8">
             <BillingSummary
               rentedItems={rentedItems}
-              rentalDays={rentalDays}
               onUpdateQuantity={handleUpdateQuantity}
               onRemoveItem={handleRemoveItem}
-              onSetRentalDays={setRentalDays}
               totalCost={totalCost}
               onPrint={handleOpenPreview}
+              // Pass new state and handlers
+              customerName={customerName}
+              setCustomerName={setCustomerName}
+              startDate={startDate}
+              setStartDate={setStartDate}
+              endDate={endDate}
+              setEndDate={setEndDate}
+              discount={discount}
+              setDiscount={setDiscount}
+              subtotal={subtotal}
+              discountAmount={discountAmount}
             />
           </div>
         </div>
@@ -85,6 +115,12 @@ const App: React.FC = () => {
           rentedItems={rentedItems}
           rentalDays={rentalDays}
           totalCost={totalCost}
+          subtotal={subtotal}
+          discount={discount}
+          discountAmount={discountAmount}
+          customerName={customerName}
+          startDate={startDate}
+          endDate={endDate}
           onClose={handleClosePreview}
         />
       )}

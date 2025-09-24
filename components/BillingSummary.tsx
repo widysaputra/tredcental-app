@@ -1,53 +1,104 @@
 import React from 'react';
 import { RentedItem } from '../types';
-import { MinusIcon, PlusIcon, TrashIcon, CalendarIcon, EmptyCartIcon, QrisIcon } from './Icons';
+import { MinusIcon, PlusIcon, TrashIcon, EmptyCartIcon, QrisIcon } from './Icons';
 
 interface BillingSummaryProps {
   rentedItems: RentedItem[];
-  rentalDays: number;
   totalCost: number;
+  subtotal: number;
+  discountAmount: number;
   onUpdateQuantity: (itemId: number, newQuantity: number) => void;
   onRemoveItem: (itemId: number) => void;
-  onSetRentalDays: (days: number) => void;
   onPrint: () => void;
+  customerName: string;
+  setCustomerName: (name: string) => void;
+  startDate: string;
+  setStartDate: (date: string) => void;
+  endDate: string;
+  setEndDate: (date: string) => void;
+  discount: number;
+  setDiscount: (percent: number) => void;
 }
 
 const BillingSummary: React.FC<BillingSummaryProps> = ({
   rentedItems,
-  rentalDays,
   totalCost,
+  subtotal,
+  discountAmount,
   onUpdateQuantity,
   onRemoveItem,
-  onSetRentalDays,
   onPrint,
+  customerName,
+  setCustomerName,
+  startDate,
+  setStartDate,
+  endDate,
+  setEndDate,
+  discount,
+  setDiscount,
 }) => {
     
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
   };
 
-  const handleDaysChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const days = parseInt(e.target.value, 10);
-    onSetRentalDays(isNaN(days) || days < 1 ? 1 : days);
-  };
-
   return (
     <div id="billing-summary" className="bg-white rounded-xl shadow-lg p-6">
       <h3 className="text-xl font-bold text-slate-800 border-b pb-4 mb-4">Ringkasan Tagihan</h3>
       
-      <div className="mb-6 no-print">
-        <label htmlFor="rental-days" className="block text-sm font-medium text-slate-700 mb-2 flex items-center">
-          <CalendarIcon className="h-5 w-5 mr-2 text-slate-500" />
-          Durasi Sewa (hari)
-        </label>
-        <input
-          type="number"
-          id="rental-days"
-          min="1"
-          value={rentalDays}
-          onChange={handleDaysChange}
-          className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div>
+            <label htmlFor="customer-name" className="block text-sm font-medium text-slate-700 mb-1">
+                Nama Pelanggan
+            </label>
+            <input
+                type="text"
+                id="customer-name"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                placeholder="Masukkan nama pelanggan"
+                className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            />
+        </div>
+         <div>
+            <label htmlFor="discount" className="block text-sm font-medium text-slate-700 mb-1">
+                Diskon (%)
+            </label>
+            <input
+                type="number"
+                id="discount"
+                value={discount}
+                onChange={(e) => setDiscount(Number(e.target.value))}
+                min="0"
+                max="100"
+                className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            />
+        </div>
+        <div>
+            <label htmlFor="start-date" className="block text-sm font-medium text-slate-700 mb-1">
+                Tanggal Sewa
+            </label>
+            <input
+                type="date"
+                id="start-date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            />
+        </div>
+        <div>
+            <label htmlFor="end-date" className="block text-sm font-medium text-slate-700 mb-1">
+                Tanggal Kembali
+            </label>
+            <input
+                type="date"
+                id="end-date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                min={startDate}
+                className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            />
+        </div>
       </div>
 
       <div className="space-y-4">
@@ -62,7 +113,7 @@ const BillingSummary: React.FC<BillingSummaryProps> = ({
             <div key={item.id} className="flex items-center justify-between">
               <div>
                 <p className="font-semibold text-slate-800">{item.name}</p>
-                <p className="text-sm text-slate-500">{formatCurrency(item.pricePerDay)} x {rentalDays} hari</p>
+                <p className="text-sm text-slate-500">{formatCurrency(item.pricePerDay)} / hari</p>
               </div>
               <div className="flex items-center space-x-2 no-print">
                 <button onClick={() => onUpdateQuantity(item.id, item.quantity - 1)} className="p-1 rounded-full bg-slate-200 hover:bg-slate-300"><MinusIcon className="h-4 w-4 text-slate-600"/></button>
@@ -77,14 +128,21 @@ const BillingSummary: React.FC<BillingSummaryProps> = ({
 
       {rentedItems.length > 0 && (
         <div className="mt-6 pt-4 border-t">
-          <div className="flex justify-between items-center">
-            <span className="text-slate-600 font-medium">Subtotal</span>
-            <span className="font-bold text-slate-800">{formatCurrency(totalCost)}</span>
+           <div className="space-y-2">
+            <div className="flex justify-between items-center">
+                <span className="text-slate-600">Total Sebelum Diskon</span>
+                <span className="font-semibold text-slate-800">{formatCurrency(subtotal)}</span>
+            </div>
+            <div className="flex justify-between items-center">
+                <span className="text-slate-600">Diskon ({discount}%)</span>
+                <span className="font-semibold text-red-500">-{formatCurrency(discountAmount)}</span>
+            </div>
+            <div className="mt-2 pt-2 border-t flex justify-between items-center text-xl">
+                <span className="font-bold text-slate-800">Total</span>
+                <span className="font-extrabold text-emerald-600">{formatCurrency(totalCost)}</span>
+            </div>
           </div>
-          <div className="mt-4 flex justify-between items-center text-xl">
-            <span className="font-bold text-slate-800">Total</span>
-            <span className="font-extrabold text-emerald-600">{formatCurrency(totalCost)}</span>
-          </div>
+
           <div className="mt-6 no-print">
             <button 
               onClick={onPrint}

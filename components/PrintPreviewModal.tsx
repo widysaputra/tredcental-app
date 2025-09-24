@@ -7,6 +7,12 @@ interface PrintPreviewModalProps {
   rentedItems: RentedItem[];
   rentalDays: number;
   totalCost: number;
+  subtotal: number;
+  discount: number;
+  discountAmount: number;
+  customerName: string;
+  startDate: string;
+  endDate: string;
   onClose: () => void;
 }
 
@@ -14,6 +20,12 @@ const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
   rentedItems,
   rentalDays,
   totalCost,
+  subtotal,
+  discount,
+  discountAmount,
+  customerName,
+  startDate,
+  endDate,
   onClose,
 }) => {
   const modalRoot = document.getElementById('modal-root');
@@ -33,11 +45,16 @@ const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
   if (!modalRoot) return null;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(amount);
+    // Return just the number, formatted.
+    return new Intl.NumberFormat('id-ID').format(amount);
+  };
+  
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
   };
 
   const handlePrint = () => {
@@ -45,53 +62,79 @@ const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
   };
   
   const ReceiptContent = () => (
-    <div className="bg-white text-black font-mono text-xs p-2">
-      <header className="text-center mb-4">
-        <img src="/tred-logo.jpg" alt="Logo" className="w-16 h-auto mx-auto mb-2" />
-        <h1 className="text-lg font-semibold uppercase">Tredcental</h1>
-        <p>Rental Alat Camping</p>
-        <p>Jl. Petualang No. 1, Jakarta</p>
-        <p>--------------------------------</p>
-      </header>
-      <section className="mb-2">
-        <div className="flex justify-between">
-          <span>Tanggal:</span>
-          <span>{new Date().toLocaleDateString('id-ID')}</span>
+    <div className="bg-white text-black font-mono text-[10px] p-1 leading-tight">
+      <header className="flex justify-between items-start mb-2">
+        <div className="flex flex-col">
+            <img src="/tred-logo.jpg" alt="Logo" className="w-16 h-auto" />
         </div>
-        <div className="flex justify-between">
-          <span>Durasi:</span>
-          <span>{rentalDays} Hari</span>
+        <div className="text-right">
+            <h1 className="text-sm font-bold">TREDC OUTDOOR</h1>
+            <p>Rental Peralatan Camping</p>
+            <p>Babakan - Ciapus Banjaran</p>
+            <p>Tlp:082120575451|IG:@tredc.outdoor</p>
+        </div>
+      </header>
+
+      <hr className="border-t border-dashed border-black my-1" />
+
+      <section className="text-[9px]">
+        <div className="grid grid-cols-[max-content,1fr] gap-x-2">
+            <span>Pelanggan</span>     <span>: {customerName || '...'}</span>
+            <span>Tanggal Sewa</span>   <span>: {formatDate(startDate)}</span>
+            <span>Tanggal Kembali</span><span>: {formatDate(endDate)}</span>
         </div>
       </section>
-      <p>--------------------------------</p>
-      <section>
+
+      <hr className="border-t border-dashed border-black my-1" />
+      
+      {/* Items Table */}
+      <div>
+        <div className="flex font-bold">
+            <span className="flex-1">Nama Barang</span>
+            <span className="w-6 text-center">QTY</span>
+            <span className="w-14 text-right">Harga</span>
+            <span className="w-16 text-right">Subtotal</span>
+        </div>
+         <hr className="border-t border-dashed border-black my-1" />
         {rentedItems.map(item => (
-          <div key={item.id} className="mb-1">
-            <p>{item.name}</p>
-            <div className="flex justify-between">
-              <span>  {item.quantity}x {formatCurrency(item.pricePerDay * rentalDays)}</span>
-              <span>{formatCurrency(item.pricePerDay * item.quantity * rentalDays)}</span>
-            </div>
+          <div key={item.id} className="flex">
+            <span className="flex-1 pr-1">{item.name.toUpperCase()}</span>
+            <span className="w-6 text-center">{item.quantity}</span>
+            <span className="w-14 text-right">{formatCurrency(item.pricePerDay)}</span>
+            <span className="w-16 text-right">{formatCurrency(item.pricePerDay * item.quantity * rentalDays)}</span>
           </div>
         ))}
-      </section>
-      <p>--------------------------------</p>
-      <section className="font-semibold">
-        <div className="flex justify-between text-sm">
-          <span>TOTAL</span>
-          <span>{formatCurrency(totalCost)}</span>
+      </div>
+
+      <hr className="border-t border-dashed border-black my-1" />
+
+      {/* Totals Section */}
+      <section className="flex flex-col items-end text-[10px]">
+        <div className="w-48">
+             <div className="flex justify-between">
+                <span>Total Sebelum Diskon</span>
+                <span>{formatCurrency(subtotal)}</span>
+            </div>
+             <div className="flex justify-between">
+                <span>Diskon ({discount}%)</span>
+                <span>-{formatCurrency(discountAmount)}</span>
+            </div>
+            <hr className="border-t border-dashed border-black my-1" />
+             <div className="flex justify-between font-bold">
+                <span>TOTAL</span>
+                <span>{formatCurrency(totalCost)}</span>
+            </div>
         </div>
       </section>
-      <p>--------------------------------</p>
-      <section className="flex flex-col items-center text-center mt-4">
-        <h2 className="font-semibold mb-2">PEMBAYARAN QRIS</h2>
-        <img src="/qris-payment.png" alt="Kode Pembayaran QRIS" className="w-40 h-40" />
-        <p className="mt-2">Pindai untuk membayar</p>
+      
+      {/* Payment Section */}
+      <section className="flex flex-col items-center text-center mt-3">
+        <img src="/qrcode.png" alt="Kode Pembayaran QRIS" className="w-32 h-32" />
+        <p className="mt-1 text-[9px]">Silahkan bayar ke DANA:</p>
+        <p className="font-bold text-lg my-1">Rp {formatCurrency(totalCost)}</p>
+        <p>Terima kasih atas kepercayaan Anda!</p>
+        <p className="mt-2">- TREDC OUTDOOR -</p>
       </section>
-      <footer className="text-center mt-6">
-        <p>Terima kasih telah menyewa!</p>
-        <p>Simpan struk ini sebagai bukti sewa.</p>
-      </footer>
     </div>
   );
 
@@ -112,8 +155,8 @@ const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
           {/* Preview for screen */}
           <div className="p-4 no-print overflow-y-auto">
             <h3 className="text-lg font-bold text-slate-800 mb-4">Pratinjau Struk</h3>
-            <div className="border rounded-md p-2 bg-slate-50 max-h-96 overflow-y-auto">
-                <div className="w-[300px] mx-auto scale-90">
+            <div className="border rounded-md p-2 bg-slate-50 max-h-[60vh] overflow-y-auto">
+                <div className="w-[270px] mx-auto scale-100">
                     <ReceiptContent />
                 </div>
             </div>
