@@ -65,9 +65,9 @@ const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
     <div className="bg-white text-black font-mono text-[10px] p-1 leading-tight">
       <header className="flex justify-between items-start mb-2">
         <div className="flex flex-col">
-            <img src="/tred-logo.jpg" alt="Logo" className="w-16 h-auto" />
+            <img src="/tred-logo.png" alt="Logo" className="w-16 h-auto" />
         </div>
-        <div className="text-right">
+        <div className="tex-left">
             <h1 className="text-sm font-bold">TREDC OUTDOOR</h1>
             <p>Rental Peralatan Camping</p>
             <p>Babakan - Ciapus Banjaran</p>
